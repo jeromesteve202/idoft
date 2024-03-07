@@ -1,35 +1,54 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Java CI with Maven
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  # You can also trigger this workflow manually or on pull requests, if needed
 
 jobs:
-  build:
-
+  flaky-test-detection:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 21
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:
-        java-version: '21'
-        distribution: 'oracle'
+        java-version: '8'
+        distribution: 'temurin' # Adjust the distribution if necessary
         cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
 
-    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+    - name: Clone test repository
+      run: |
+        cd ~
+        git clone https://github.com/vojtechhabarta/typescript-generator
+        cd typescript-generator
+
+    - name: Print latest commit
+      run: |
+        cd ~/typescript-generator
+        git rev-parse HEAD
+
+    # Uncomment the next step if you need to checkout a specific commit
+    # - name: Checkout specific commit (Optional)
+    #   run: |
+    #     cd ~/typescript-generator
+    #     git checkout <SPECIFIC_COMMIT_HASH>
+
+    - name: Compile the project (skip tests)
+      run: |
+        cd ~/typescript-generator
+        mvn clean install -DskipTests -pl typescript-generator-core -am
+
+    - name: Run the test to check if it passes
+      run: |
+        cd ~/typescript-generator
+        mvn -pl typescript-generator-core test -Dtest=cz.habarta.typescript.generator.TaggedUnionsTest#testTaggedUnionsWithInterfaces
+
+    - name: Run the test with NonDex to check for flakiness
+      run: |
+        cd ~/typescript-generator
+        mvn -pl typescript-generator-core edu.illinois:nondex-maven-plugin:2.1.1:nondex -Dtest=cz.habarta.typescript.generator.TaggedUnionsTest#testTaggedUnionsWithInterfaces
+        # Adjust the number of runs with -DnondexRuns=10 or -DnondexRuns=100 if necessary
