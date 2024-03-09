@@ -23,32 +23,31 @@ jobs:
     - name: Clone test repository
       run: |
         cd ~
-        git clone https://github.com/vojtechhabarta/typescript-generator
-        cd typescript-generator
+        git clone https://github.com/alibaba/Alink
+        cd Alink
 
     - name: Print latest commit
       run: |
-        cd ~/typescript-generator
+        cd ~/Alink
         git rev-parse HEAD
 
     # Uncomment the next step if you need to checkout a specific commit
-    # - name: Checkout specific commit (Optional)
-    #   run: |
-    #     cd ~/typescript-generator
-    #     git checkout <SPECIFIC_COMMIT_HASH>
+    - name: Checkout specific commit (Optional)
+      run: |
+        cd ~/Alink
+        git checkout edb543ee05260a1dd314b11384d918fa1622d9c1
 
     - name: Compile the project (skip tests)
       run: |
-        cd ~/typescript-generator
-        mvn clean install -DskipTests -pl typescript-generator-core -am
+        cd ~/Alink
+        mvn clean install -DskipTests -pl core -am
 
     - name: Run the test to check if it passes
       run: |
-        cd ~/typescript-generator
-        mvn -pl typescript-generator-core test -Dtest=cz.habarta.typescript.generator.TaggedUnionsTest#testTaggedUnionsWithInterfaces
+        cd ~/Alink
+        mvn -pl core test -Dtest=com.alibaba.alink.operator.common.similarity.dataConverter.MinHashModelDataConverterTest#testMinHash
 
     - name: Run the test with NonDex to check for flakiness
       run: |
-        cd ~/typescript-generator
-        mvn -pl typescript-generator-core edu.illinois:nondex-maven-plugin:2.1.1:nondex -Dtest=cz.habarta.typescript.generator.TaggedUnionsTest#testTaggedUnionsWithInterfaces
-        # Adjust the number of runs with -DnondexRuns=10 or -DnondexRuns=100 if necessary
+        cd ~/Alink
+        mvn -pl core edu.illinois:nondex-maven-plugin:2.1.1:nondex -Dtest=com.alibaba.alink.operator.common.similarity.dataConverter.MinHashModelDataConverterTest#testMinHash
