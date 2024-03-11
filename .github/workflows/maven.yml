@@ -3,7 +3,6 @@ name: Flaky Test Detection
 on:
   push:
     branches: [ "main" ]
-  # You can also trigger this workflow manually or on pull requests, if needed
 
 jobs:
   flaky-test-detection:
@@ -17,7 +16,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '8'
-        distribution: 'temurin' # This uses Eclipse Temurin as the Java distribution
+        distribution: 'temurin'
         cache: maven
 
     - name: Clone test repository
