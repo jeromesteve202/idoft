@@ -27,25 +27,20 @@ jobs:
 
     - name: Print latest commit
       run: |
-        cd ~/Alink
         git rev-parse HEAD
 
-    - name: Checkout specific commit (Optional)
+    - name: Checkout specific commit
       run: |
-        cd ~/Alink
         git checkout edb543ee05260a1dd314b11384d918fa1622d9c1
 
-    - name: Compile the project (skip tests)
+    - name: Compile the project
       run: |
-        cd ~/Alink
         mvn clean install -DskipTests -pl core -am
 
     - name: Run the test to check if it passes
       run: |
-        cd ~/Alink
         mvn -pl core test -Dtest=com.alibaba.alink.operator.common.similarity.dataConverter.MinHashModelDataConverterTest#testMinHash
 
     - name: Run the test with NonDex to check for flakiness
       run: |
-        cd ~/Alink
         mvn -pl core edu.illinois:nondex-maven-plugin:2.1.1:nondex -Dtest=com.alibaba.alink.operator.common.similarity.dataConverter.MinHashModelDataConverterTest#testMinHash
