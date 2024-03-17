@@ -34,6 +34,7 @@ jobs:
 
     - name: Checkout specific commit
       run: |
+        cd ~/Alink
         git checkout edb543ee05260a1dd314b11384d918fa1622d9c1
 
     - name: Compile the project
